@@ -5,10 +5,24 @@
 Les modèles Power BI doivent être lisibles, maintenables et compréhensibles par un utilisateur métier et technique.
 
 > **Langue du modèle** : tous les noms de tables, colonnes et mesures sont rédigés en **anglais**. Les descriptions sont également en anglais. La documentation interne peut rester en français.
+---
+
+## 0. Modèle d'architecture (Découplage)
+
+- **Principe du modèle unique** : Séparer strictement le jeu de données (*Semantic Model*) de la couche de restitution (*Report*).
+- **Format de fichier** : Travailler au format **Power BI Project (.pbip)** pour permettre le suivi des modifications via Git (syntaxe TMDL).
 
 ---
 
-## 1. Nommage des tables
+## 1. Power Query & Ingestion (M)
+
+- **Query Folding (Pliage de requête)** : Toutes les transformations (filtrage, sélection de colonnes, agrégations) doivent maintenir le pliage vers la source relationnelle.
+- **Typage explicite** : Définir le type de chaque colonne dans Power Query (pas de typage implicite dans le modèle).
+- **Nettoyage précoce** : Supprimer les colonnes inutiles (`Remove Columns`) dès les premières étapes de la requête.
+
+---
+
+## 2. Nommage des tables
 
 ### Préfixes obligatoires
 
@@ -44,7 +58,7 @@ customerkey   ❌
 
 ---
 
-## 2. Description des tables et colonnes
+## 3. Description des tables et colonnes
 
 Toutes les descriptions sont rédigées en **anglais**.
 
@@ -67,7 +81,7 @@ Toutes les colonnes doivent avoir une description métier. En particulier, les c
 
 ---
 
-## 3. Modélisation
+## 4. Modélisation
 
 ### Schéma en étoile
 
@@ -101,7 +115,7 @@ Toutes les colonnes doivent avoir une description métier. En particulier, les c
 
 ---
 
-## 4. Mesures DAX
+## 5. Mesures DAX
 
 ### Table de mesures
 
@@ -157,33 +171,37 @@ DIVIDE(
 
 ---
 
-## 5. Calendrier DAX
+## 6. Calendrier DAX
 
 ### Génération
 
-Utiliser `CALENDARAUTO()` pour générer automatiquement la plage de dates couverte par le modèle.
+> **Règle** : Éviter `CALENDARAUTO()` qui peut générer des plages de dates disproportionnées en cas de valeurs aberrantes dans le modèle. Privilégier un ciblage dynamique basé sur les tables de faits.
 
-```DAX
-DIM_DATE =
-VAR _Calendar = CALENDARAUTO()
-VAR _Result =
+```dax
+DIM_DATE = 
+VAR _MinYear = YEAR(MIN(FACT_SALES[OrderDate]))
+VAR _MaxYear = YEAR(MAX(FACT_SALES[OrderDate]))
+VAR _StartDate = DATE(_MinYear, 1, 1)
+VAR _EndDate = DATE(_MaxYear, 12, 31)
+VAR _Calendar = CALENDAR(_StartDate, _EndDate)
+RETURN
     ADDCOLUMNS(
         _Calendar,
-        "Year",           YEAR([Date]),
-        "Quarter",        "Q" & QUARTER([Date]),
-        "QuarterNumber",  QUARTER([Date]),
-        "Month",          FORMAT([Date], "MMMM"),
-        "MonthNumber",    MONTH([Date]),
-        "MonthShort",     FORMAT([Date], "MMM"),
-        "Week",           WEEKNUM([Date], 2),
-        "DayOfWeek",      FORMAT([Date], "dddd"),
-        "DayOfWeekNumber",WEEKDAY([Date], 2),
-        "IsWeekend",      WEEKDAY([Date], 2) >= 6,
-        "YearMonth",      FORMAT([Date], "YYYY-MM"),
-        "YearQuarter",    YEAR([Date]) & " Q" & QUARTER([Date])
+        "Year",            YEAR([Date]),
+        "Quarter",         "Q" & QUARTER([Date]),
+        "QuarterNumber",   QUARTER([Date]),
+        "Month",           FORMAT([Date], "MMMM"),
+        "MonthNumber",     MONTH([Date]),
+        "MonthShort",      FORMAT([Date], "MMM"),
+        "Week",            WEEKNUM([Date], 2),
+        "DayOfWeek",       FORMAT([Date], "dddd"),
+        "DayOfWeekNumber", WEEKDAY([Date], 2),
+        "IsWeekend",       WEEKDAY([Date], 2) >= 6,
+        "YearMonth",       FORMAT([Date], "YYYY-MM"),
+        "YearQuarter",     YEAR([Date]) & " Q" & QUARTER([Date])
     )
-RETURN _Result
-```
+
+
 
 ### Configuration obligatoire
 
@@ -193,7 +211,7 @@ RETURN _Result
 
 ---
 
-## 6. Sécurité (RLS) (optionnel)
+## 7. Sécurité (RLS) (optionnel)
 
 - Définir les rôles RLS (*Row-Level Security*) dans Power BI Desktop avant la publication.
 - Nommer les rôles de manière explicite et orientée métier : `Region_EMEA`, `Sales_Manager`, `Finance_ReadOnly`.
@@ -202,7 +220,7 @@ RETURN _Result
 
 ---
 
-## 7. Performance
+## 8. Performance
 
 - Préférer le mode **Import** au mode DirectQuery sauf besoin de fraîcheur temps réel justifié.
 - Limiter le nombre de colonnes importées au strict nécessaire (supprimer les colonnes inutilisées à la source dans Power Query).
@@ -211,7 +229,7 @@ RETURN _Result
 
 ---
 
-## 8. Checklist avant publication
+## 9. Checklist avant publication
 
 Obligatoire:
 - [ ] Toutes les tables ont un préfixe et une description.
