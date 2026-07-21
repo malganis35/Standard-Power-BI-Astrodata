@@ -4,7 +4,7 @@
 
 Les modèles Power BI doivent être lisibles, maintenables et compréhensibles par un utilisateur métier et technique.
 
-> **Langue du modèle** : tous les noms de tables, colonnes et mesures sont rédigés en **anglais**. Les descriptions sont également en anglais. La documentation interne (commentaires DAX, ce document) est en anglais.
+> **Langue du modèle** : tous les noms de tables, colonnes et mesures sont rédigés en **anglais**. Les descriptions sont également en anglais. La documentation interne peut rester en français.
 
 ---
 
@@ -60,9 +60,7 @@ Chaque table doit avoir une description précisant :
 
 ### Colonnes
 
-Toutes les colonnes doivent avoir une description métier.
-
-Les colonnes dont le rôle n'est pas évident doivent avoir une description. En particulier :
+Toutes les colonnes doivent avoir une description métier. En particulier, les colonnes dont le rôle n'est pas évident doivent faire l'objet d'une documentation précise comme par exemple :
 - les clés techniques ;
 - les colonnes de statut ou de code ;
 - les colonnes avec des valeurs encodées.
@@ -107,8 +105,8 @@ Les colonnes dont le rôle n'est pas évident doivent avoir une description. En 
 
 ### Table de mesures
 
-- Regrouper toutes les mesures dans des **tables dédiées** sans données (créées via `Enter Data` avec une table vide).
-- Nommer ces tables avec le préfixe `_` : `_SALES_MEASURES`, `_FINANCE_MEASURES`.
+- Regrouper toutes les mesures dans une **table dédiée** sans données (créées via `Enter Data` avec une table vide).
+- Nommer cette table avec le préfixe `_` : `_MEASURES`.
 - Ne pas mélanger mesures et colonnes dans une même table.
 
 ### Nommage des mesures
@@ -122,7 +120,7 @@ Les colonnes dont le rôle n'est pas évident doivent avoir une description. En 
 Organiser les mesures en dossiers d'affichage (`Display Folders`) par domaine :
 
 ```
-_SALES_MEASURES
+_MEASURES
 ├── Revenue
 │   ├── Total Revenue
 │   ├── YTD Revenue
@@ -195,11 +193,7 @@ RETURN _Result
 
 ---
 
-## 6. Sécurité (RLS)
-
-Non obligatoire. Tu dois demander à l'utilisateur s'il souhaite mettre en place une RLS dans son projet.
-
-Si l'utilisateur souhaite mettre en place une RLS, voici ce que tu dois faire : 
+## 6. Sécurité (RLS) (optionnel)
 
 - Définir les rôles RLS (*Row-Level Security*) dans Power BI Desktop avant la publication.
 - Nommer les rôles de manière explicite et orientée métier : `Region_EMEA`, `Sales_Manager`, `Finance_ReadOnly`.
@@ -219,11 +213,14 @@ Si l'utilisateur souhaite mettre en place une RLS, voici ce que tu dois faire :
 
 ## 8. Checklist avant publication
 
+Obligatoire:
 - [ ] Toutes les tables ont un préfixe et une description.
 - [ ] Toutes les colonnes techniques sont masquées.
 - [ ] Les agrégations automatiques des colonnes numériques sont vérifiées.
 - [ ] Toutes les mesures ont un format défini et sont organisées en Display Folders.
 - [ ] Les relations sont en cardinalité many-to-one, direction simple.
 - [ ] `DIM_DATE` est marquée comme table de dates.
-- [ ] Les rôles RLS sont définis et testés.
 - [ ] Aucune table intermédiaire Power Query n'est chargée dans le modèle.
+
+Optionnel:
+- [ ] Les rôles RLS sont définis et testés.
