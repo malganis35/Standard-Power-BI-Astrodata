@@ -11,7 +11,13 @@ Les modèles Power BI doivent être lisibles, maintenables et compréhensibles p
 ## 1. Architecture & Organisation du projet
 
 - **Principe du modèle unique** : Séparer strictement le jeu de données (*Semantic Model*) de la couche de restitution (*Report*). Un Semantic Model peut alimenter plusieurs rapports.
-- **Format de fichier** : Travailler au format **Power BI Project (.pbip)** pour permettre le suivi des modifications via Git (syntaxe TMDL). Éviter le format `.pbix` pour les projets collaboratifs.
+- **Format de fichier** : Travailler au format **Power BI Project (.pbip)** pour permettre le suivi des modifications via Git et rendre le code lisible (syntaxe TMDL). Éviter le format `.pbix` pour les projets collaboratifs.
+- **Versionnement et Git** : Le suivi des versions s'effectue strictement sous Git. Pour garantir un historique propre et automatisable, les messages de commit doivent respecter le standard **Conventional Commits**.
+  - `feat:` : Ajout d'une fonctionnalité métier (ex. : `feat: add YTD revenue measure`, `feat: create sales performance dashboard page`).
+  - `fix:` : Correction d'un comportement (ex. : `fix: resolve cross-filtering issue on map visual`, `fix: handle division by zero in margin calculation`).
+  - `refactor:` : Amélioration technique sans changement métier (ex. : `refactor: optimize DAX with VAR/RETURN`, `refactor: fold query steps in DIM_CUSTOMER`).
+  - `docs:` : Ajout ou modification de la documentation interne (ex. : `docs: add descriptions to FACT_SALES columns`).
+  - `chore:` : Tâches de maintenance (ex. : `chore: update JSON theme colors`, `chore: format TMDL files`).
 
 ---
 
